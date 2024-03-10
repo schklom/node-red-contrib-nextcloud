@@ -285,7 +285,16 @@ module.exports = function (RED) {
       client.putFileContents(directory + name, file, { format: 'binary' }, option)
         .then(function (contents) {
           console.log(contents)
-          node.send({ 'payload': JSON.parse(contents) })
+          try {
+              // Parse a JSON
+              safeContent = JSON.parse(contents); 
+          } catch (e) {
+              // You can read e for more info
+              // Let's assume the error is that we already have parsed the payload
+              // So just return that
+              safeContent = contents;
+          }
+          node.send({ 'payload': safeContent })
         }, function () {
           node.error('Nextcloud:WebDAV -> send file went wrong.')
         })
